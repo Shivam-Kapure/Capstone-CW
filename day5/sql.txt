@@ -1,0 +1,454 @@
+mysql> create database capstone;
+Query OK, 1 row affected (0.06 sec)
+
+mysql> use capstone;
+Database changed
+mysql> CREATE TABLE employee (
+    ->     emp_id INT PRIMARY KEY,
+    ->     name VARCHAR(50),
+    ->     department VARCHAR(50),
+    ->     salary DECIMAL(10,2)
+    -> );
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> INSERT INTO employee (emp_id, name, department, salary) VALUES
+    -> (1, 'Amit Sharma', 'HR', 45000.00),
+    -> (2, 'Neha Verma', 'Finance', 55000.00),
+    -> (3, 'Rahul Mehta', 'IT', 70000.00),
+    -> (4, 'Priya Singh', 'Marketing', 50000.00),
+    -> (5, 'Karan Patel', 'IT', 72000.00),
+    -> (6, 'Sneha Iyer', 'HR', 48000.00),
+    -> (7, 'Arjun Reddy', 'Finance', 60000.00),
+    -> (8, 'Pooja Desai', 'Marketing', 52000.00),
+    -> (9, 'Vikram Joshi', 'IT', 75000.00),
+    -> (10, 'Anjali Gupta', 'HR', 47000.00),
+    -> (11, 'Rohit Kapoor', 'Finance', 58000.00);
+Query OK, 11 rows affected (0.02 sec)
+Records: 11  Duplicates: 0  Warnings: 0
+
+mysql> select * from employee;
++--------+--------------+------------+----------+
+| emp_id | name         | department | salary   |
++--------+--------------+------------+----------+
+|      1 | Amit Sharma  | HR         | 45000.00 |
+|      2 | Neha Verma   | Finance    | 55000.00 |
+|      3 | Rahul Mehta  | IT         | 70000.00 |
+|      4 | Priya Singh  | Marketing  | 50000.00 |
+|      5 | Karan Patel  | IT         | 72000.00 |
+|      6 | Sneha Iyer   | HR         | 48000.00 |
+|      7 | Arjun Reddy  | Finance    | 60000.00 |
+|      8 | Pooja Desai  | Marketing  | 52000.00 |
+|      9 | Vikram Joshi | IT         | 75000.00 |
+|     10 | Anjali Gupta | HR         | 47000.00 |
+|     11 | Rohit Kapoor | Finance    | 58000.00 |
++--------+--------------+------------+----------+
+11 rows in set (0.01 sec)
+
+mysql> select emp_id, name, department, salary, ROW_NUMBER() OVER (Partition by department ORDER BY salary DESC) AS row_num FROM employees();
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '()' at line 1
+mysql> select emp_id, name, department, salary, ROW_NUMBER() OVER (Partition by department ORDER BY salary DESC) AS row_num FROM employee();
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '()' at line 1
+mysql> SELECT
+    ->     emp_id,
+    ->     name,
+    ->     department,
+    ->     salary,
+    ->     ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS row_num
+    -> FROM employee;
++--------+--------------+------------+----------+---------+
+| emp_id | name         | department | salary   | row_num |
++--------+--------------+------------+----------+---------+
+|      7 | Arjun Reddy  | Finance    | 60000.00 |       1 |
+|     11 | Rohit Kapoor | Finance    | 58000.00 |       2 |
+|      2 | Neha Verma   | Finance    | 55000.00 |       3 |
+|      6 | Sneha Iyer   | HR         | 48000.00 |       1 |
+|     10 | Anjali Gupta | HR         | 47000.00 |       2 |
+|      1 | Amit Sharma  | HR         | 45000.00 |       3 |
+|      9 | Vikram Joshi | IT         | 75000.00 |       1 |
+|      5 | Karan Patel  | IT         | 72000.00 |       2 |
+|      3 | Rahul Mehta  | IT         | 70000.00 |       3 |
+|      8 | Pooja Desai  | Marketing  | 52000.00 |       1 |
+|      4 | Priya Singh  | Marketing  | 50000.00 |       2 |
++--------+--------------+------------+----------+---------+
+11 rows in set (0.01 sec)
+
+mysql> Select name, salary, ROW_NUMBER() OVER (order by slary desc) as RN from employee;
+ERROR 1054 (42S22): Unknown column 'slary' in 'window order by'
+mysql> Select name, salary, ROW_NUMBER() OVER (order by salary desc) as RN from employee;
++--------------+----------+----+
+| name         | salary   | RN |
++--------------+----------+----+
+| Vikram Joshi | 75000.00 |  1 |
+| Karan Patel  | 72000.00 |  2 |
+| Rahul Mehta  | 70000.00 |  3 |
+| Arjun Reddy  | 60000.00 |  4 |
+| Rohit Kapoor | 58000.00 |  5 |
+| Neha Verma   | 55000.00 |  6 |
+| Pooja Desai  | 52000.00 |  7 |
+| Priya Singh  | 50000.00 |  8 |
+| Sneha Iyer   | 48000.00 |  9 |
+| Anjali Gupta | 47000.00 | 10 |
+| Amit Sharma  | 45000.00 | 11 |
++--------------+----------+----+
+11 rows in set (0.00 sec)
+
+mysql> select *
+    -> fromm (
+    -> ^C
+mysql> select *
+    -> from (
+    -> Select *
+    -> ROW_NUMBER() over partition by department order by salary desc) as RN
+    -> from employee
+    -> ) t
+    -> where RN = 1;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'ROW_NUMBER() over partition by department order by salary desc) as RN
+from emplo' at line 4
+mysql> SELECT *
+    -> FROM (
+    ->     SELECT
+    ->         emp_id,
+    ->         name,
+    ->         department,
+    ->         salary,
+    ->         ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS RN
+    ->     FROM employee
+    -> ) t
+    -> WHERE RN = 1;
++--------+--------------+------------+----------+----+
+| emp_id | name         | department | salary   | RN |
++--------+--------------+------------+----------+----+
+|      7 | Arjun Reddy  | Finance    | 60000.00 |  1 |
+|      6 | Sneha Iyer   | HR         | 48000.00 |  1 |
+|      9 | Vikram Joshi | IT         | 75000.00 |  1 |
+|      8 | Pooja Desai  | Marketing  | 52000.00 |  1 |
++--------+--------------+------------+----------+----+
+4 rows in set (0.01 sec)
+
+mysql> SELECT *
+    -> from (
+    ->     ^C
+mysql> Select * from (select emp_id, name, department, salary, ROW_NUMBER() over (partition by department order by salary desc) as RN from employee) t where RN = 2;
++--------+--------------+------------+----------+----+
+| emp_id | name         | department | salary   | RN |
++--------+--------------+------------+----------+----+
+|     11 | Rohit Kapoor | Finance    | 58000.00 |  2 |
+|     10 | Anjali Gupta | HR         | 47000.00 |  2 |
+|      5 | Karan Patel  | IT         | 72000.00 |  2 |
+|      4 | Priya Singh  | Marketing  | 50000.00 |  2 |
++--------+--------------+------------+----------+----+
+4 rows in set (0.00 sec)
+
+mysql> select emp_id, name, department, salary, RANK() over (partition by department order by salary desc) as rank_num from employee;
++--------+--------------+------------+----------+----------+
+| emp_id | name         | department | salary   | rank_num |
++--------+--------------+------------+----------+----------+
+|      7 | Arjun Reddy  | Finance    | 60000.00 |        1 |
+|     11 | Rohit Kapoor | Finance    | 58000.00 |        2 |
+|      2 | Neha Verma   | Finance    | 55000.00 |        3 |
+|      6 | Sneha Iyer   | HR         | 48000.00 |        1 |
+|     10 | Anjali Gupta | HR         | 47000.00 |        2 |
+|      1 | Amit Sharma  | HR         | 45000.00 |        3 |
+|      9 | Vikram Joshi | IT         | 75000.00 |        1 |
+|      5 | Karan Patel  | IT         | 72000.00 |        2 |
+|      3 | Rahul Mehta  | IT         | 70000.00 |        3 |
+|      8 | Pooja Desai  | Marketing  | 52000.00 |        1 |
+|      4 | Priya Singh  | Marketing  | 50000.00 |        2 |
++--------+--------------+------------+----------+----------+
+11 rows in set (0.01 sec)
+
+mysql> SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS rn FROM employee) AS t WHERE rn = 2;
++--------+--------------+------------+----------+----+
+| emp_id | name         | department | salary   | rn |
++--------+--------------+------------+----------+----+
+|     11 | Rohit Kapoor | Finance    | 58000.00 |  2 |
+|     10 | Anjali Gupta | HR         | 47000.00 |  2 |
+|      5 | Karan Patel  | IT         | 72000.00 |  2 |
+|      4 | Priya Singh  | Marketing  | 50000.00 |  2 |
++--------+--------------+------------+----------+----+
+4 rows in set (0.00 sec)
+
+mysql> select emp_id, name, department, salary, RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS rank_num FROM employee;
++--------+--------------+------------+----------+----------+
+| emp_id | name         | department | salary   | rank_num |
++--------+--------------+------------+----------+----------+
+|      7 | Arjun Reddy  | Finance    | 60000.00 |        1 |
+|     11 | Rohit Kapoor | Finance    | 58000.00 |        2 |
+|      2 | Neha Verma   | Finance    | 55000.00 |        3 |
+|      6 | Sneha Iyer   | HR         | 48000.00 |        1 |
+|     10 | Anjali Gupta | HR         | 47000.00 |        2 |
+|      1 | Amit Sharma  | HR         | 45000.00 |        3 |
+|      9 | Vikram Joshi | IT         | 75000.00 |        1 |
+|      5 | Karan Patel  | IT         | 72000.00 |        2 |
+|      3 | Rahul Mehta  | IT         | 70000.00 |        3 |
+|      8 | Pooja Desai  | Marketing  | 52000.00 |        1 |
+|      4 | Priya Singh  | Marketing  | 50000.00 |        2 |
++--------+--------------+------------+----------+----------+
+11 rows in set (0.00 sec)
+
+mysql> select name, salary, LAG(salary) OVER (ORDER BY salary) AS next_salary from employee;
++--------------+----------+-------------+
+| name         | salary   | next_salary |
++--------------+----------+-------------+
+| Amit Sharma  | 45000.00 |        NULL |
+| Anjali Gupta | 47000.00 |    45000.00 |
+| Sneha Iyer   | 48000.00 |    47000.00 |
+| Priya Singh  | 50000.00 |    48000.00 |
+| Pooja Desai  | 52000.00 |    50000.00 |
+| Neha Verma   | 55000.00 |    52000.00 |
+| Rohit Kapoor | 58000.00 |    55000.00 |
+| Arjun Reddy  | 60000.00 |    58000.00 |
+| Rahul Mehta  | 70000.00 |    60000.00 |
+| Karan Patel  | 72000.00 |    70000.00 |
+| Vikram Joshi | 75000.00 |    72000.00 |
++--------------+----------+-------------+
+11 rows in set (0.01 sec)
+
+mysql> select name, salary, LEAD(salary) OVER (ORDER BY salary) AS next_salary from employee;
++--------------+----------+-------------+
+| name         | salary   | next_salary |
++--------------+----------+-------------+
+| Amit Sharma  | 45000.00 |    47000.00 |
+| Anjali Gupta | 47000.00 |    48000.00 |
+| Sneha Iyer   | 48000.00 |    50000.00 |
+| Priya Singh  | 50000.00 |    52000.00 |
+| Pooja Desai  | 52000.00 |    55000.00 |
+| Neha Verma   | 55000.00 |    58000.00 |
+| Rohit Kapoor | 58000.00 |    60000.00 |
+| Arjun Reddy  | 60000.00 |    70000.00 |
+| Rahul Mehta  | 70000.00 |    72000.00 |
+| Karan Patel  | 72000.00 |    75000.00 |
+| Vikram Joshi | 75000.00 |        NULL |
++--------------+----------+-------------+
+11 rows in set (0.00 sec)
+
+mysql> select emp_id, name, department, salary,DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS rank_num FROM employee;
++--------+--------------+------------+----------+----------+
+| emp_id | name         | department | salary   | rank_num |
++--------+--------------+------------+----------+----------+
+|      7 | Arjun Reddy  | Finance    | 60000.00 |        1 |
+|     11 | Rohit Kapoor | Finance    | 58000.00 |        2 |
+|      2 | Neha Verma   | Finance    | 55000.00 |        3 |
+|      6 | Sneha Iyer   | HR         | 48000.00 |        1 |
+|     10 | Anjali Gupta | HR         | 47000.00 |        2 |
+|      1 | Amit Sharma  | HR         | 45000.00 |        3 |
+|      9 | Vikram Joshi | IT         | 75000.00 |        1 |
+|      5 | Karan Patel  | IT         | 72000.00 |        2 |
+|      3 | Rahul Mehta  | IT         | 70000.00 |        3 |
+|      8 | Pooja Desai  | Marketing  | 52000.00 |        1 |
+|      4 | Priya Singh  | Marketing  | 50000.00 |        2 |
++--------+--------------+------------+----------+----------+
+11 rows in set (0.00 sec)
+
+mysql> select emp_id, name, department, salary, RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS rank_num FROM employee;
++--------+--------------+------------+----------+----------+
+| emp_id | name         | department | salary   | rank_num |
++--------+--------------+------------+----------+----------+
+|      7 | Arjun Reddy  | Finance    | 60000.00 |        1 |
+|     11 | Rohit Kapoor | Finance    | 58000.00 |        2 |
+|      2 | Neha Verma   | Finance    | 55000.00 |        3 |
+|      6 | Sneha Iyer   | HR         | 48000.00 |        1 |
+|     10 | Anjali Gupta | HR         | 47000.00 |        2 |
+|      1 | Amit Sharma  | HR         | 45000.00 |        3 |
+|      9 | Vikram Joshi | IT         | 75000.00 |        1 |
+|      5 | Karan Patel  | IT         | 72000.00 |        2 |
+|      3 | Rahul Mehta  | IT         | 70000.00 |        3 |
+|      8 | Pooja Desai  | Marketing  | 52000.00 |        1 |
+|      4 | Priya Singh  | Marketing  | 50000.00 |        2 |
++--------+--------------+------------+----------+----------+
+11 rows in set (0.00 sec)
+
+mysql> SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS rn FROM employee) AS t WHERE rn = 2 or rn = 1;
++--------+--------------+------------+----------+----+
+| emp_id | name         | department | salary   | rn |
++--------+--------------+------------+----------+----+
+|      7 | Arjun Reddy  | Finance    | 60000.00 |  1 |
+|     11 | Rohit Kapoor | Finance    | 58000.00 |  2 |
+|      6 | Sneha Iyer   | HR         | 48000.00 |  1 |
+|     10 | Anjali Gupta | HR         | 47000.00 |  2 |
+|      9 | Vikram Joshi | IT         | 75000.00 |  1 |
+|      5 | Karan Patel  | IT         | 72000.00 |  2 |
+|      8 | Pooja Desai  | Marketing  | 52000.00 |  1 |
+|      4 | Priya Singh  | Marketing  | 50000.00 |  2 |
++--------+--------------+------------+----------+----+
+8 rows in set (0.01 sec)
+
+mysql> CREATE TABLE manager (
+    ->     manager_id INT PRIMARY KEY,
+    ->     manager_name VARCHAR(50),
+    ->     department VARCHAR(50)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> CREATE TABLE orders (
+    ->     order_id INT PRIMARY KEY,
+    ->     order_name VARCHAR(50),
+    ->     manager_id INT,
+    ->     amount DECIMAL(10,2)
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> INSERT INTO manager VALUES
+    -> (1, 'Amit', 'Sales'),
+    -> (2, 'Neha', 'IT'),
+    -> (3, 'Rahul', 'HR'),
+    -> (4, 'Priya', 'Finance');
+Query OK, 4 rows affected (0.00 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO orders VALUES
+    -> (101, 'Laptop Order', 2, 70000),
+    -> (102, 'Office Supplies', 1, 15000),
+    -> (103, 'Recruitment Service', 3, 20000),
+    -> (104, 'Software License', 2, 50000),
+    -> (105, 'Stationery', NULL, 5000);
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> SELECT o.order_id, o.order_name, m.manager_name
+    -> FROM orders o
+    -> INNER JOIN manager m
+    -> ON o.manager_id = m.manager_id;
++----------+---------------------+--------------+
+| order_id | order_name          | manager_name |
++----------+---------------------+--------------+
+|      101 | Laptop Order        | Neha         |
+|      102 | Office Supplies     | Amit         |
+|      103 | Recruitment Service | Rahul        |
+|      104 | Software License    | Neha         |
++----------+---------------------+--------------+
+4 rows in set (0.01 sec)
+
+mysql> SELECT o.order_id, o.order_name, m.manager_name
+    -> FROM orders o
+    -> LEFT JOIN manager m
+    -> ON o.manager_id = m.manager_id;
++----------+---------------------+--------------+
+| order_id | order_name          | manager_name |
++----------+---------------------+--------------+
+|      101 | Laptop Order        | Neha         |
+|      102 | Office Supplies     | Amit         |
+|      103 | Recruitment Service | Rahul        |
+|      104 | Software License    | Neha         |
+|      105 | Stationery          | NULL         |
++----------+---------------------+--------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT o.order_id, o.order_name, m.manager_name
+    -> FROM orders o
+    -> RIGHT JOIN manager m
+    -> ON o.manager_id = m.manager_id;
++----------+---------------------+--------------+
+| order_id | order_name          | manager_name |
++----------+---------------------+--------------+
+|      102 | Office Supplies     | Amit         |
+|      104 | Software License    | Neha         |
+|      101 | Laptop Order        | Neha         |
+|      103 | Recruitment Service | Rahul        |
+|     NULL | NULL                | Priya        |
++----------+---------------------+--------------+
+5 rows in set (0.01 sec)
+
+mysql> SELECT o.order_id, o.order_name, m.manager_name
+    -> FROM orders o
+    -> LEFT JOIN manager m
+    -> ON o.manager_id = m.manager_id
+    ->
+    -> UNION
+    ->
+    -> SELECT o.order_id, o.order_name, m.manager_name
+    -> FROM orders o
+    -> RIGHT JOIN manager m
+    -> ON o.manager_id = m.manager_id;
++----------+---------------------+--------------+
+| order_id | order_name          | manager_name |
++----------+---------------------+--------------+
+|      101 | Laptop Order        | Neha         |
+|      102 | Office Supplies     | Amit         |
+|      103 | Recruitment Service | Rahul        |
+|      104 | Software License    | Neha         |
+|      105 | Stationery          | NULL         |
+|     NULL | NULL                | Priya        |
++----------+---------------------+--------------+
+6 rows in set (0.01 sec)
+
+mysql> SELECT o.order_name, m.manager_name
+    -> FROM orders o
+    -> CROSS JOIN manager m;
++---------------------+--------------+
+| order_name          | manager_name |
++---------------------+--------------+
+| Laptop Order        | Priya        |
+| Laptop Order        | Rahul        |
+| Laptop Order        | Neha         |
+| Laptop Order        | Amit         |
+| Office Supplies     | Priya        |
+| Office Supplies     | Rahul        |
+| Office Supplies     | Neha         |
+| Office Supplies     | Amit         |
+| Recruitment Service | Priya        |
+| Recruitment Service | Rahul        |
+| Recruitment Service | Neha         |
+| Recruitment Service | Amit         |
+| Software License    | Priya        |
+| Software License    | Rahul        |
+| Software License    | Neha         |
+| Software License    | Amit         |
+| Stationery          | Priya        |
+| Stationery          | Rahul        |
+| Stationery          | Neha         |
+| Stationery          | Amit         |
++---------------------+--------------+
+20 rows in set (0.00 sec)
+
+mysql> SELECT m1.manager_name AS Manager1, m2.manager_name AS Manager2
+    -> FROM manager m1
+    -> JOIN manager m2
+    -> ON m1.manager_id <> m2.manager_id;
++----------+----------+
+| Manager1 | Manager2 |
++----------+----------+
+| Priya    | Amit     |
+| Rahul    | Amit     |
+| Neha     | Amit     |
+| Priya    | Neha     |
+| Rahul    | Neha     |
+| Amit     | Neha     |
+| Priya    | Rahul    |
+| Neha     | Rahul    |
+| Amit     | Rahul    |
+| Rahul    | Priya    |
+| Neha     | Priya    |
+| Amit     | Priya    |
++----------+----------+
+12 rows in set (0.01 sec)
+
+mysql> SELECT
+    ->     e.emp_id,
+    ->     e.name AS employee_name,
+    ->     e.department,
+    ->     e.salary,
+    ->     o.order_id,
+    ->     o.order_name,
+    ->     m.manager_name
+    -> FROM employee e
+    -> JOIN manager m
+    ->     ON e.department = m.department
+    -> JOIN orders o
+    ->     ON m.manager_id = o.manager_id;
++--------+---------------+------------+----------+----------+---------------------+--------------+
+| emp_id | employee_name | department | salary   | order_id | order_name          | manager_name |
++--------+---------------+------------+----------+----------+---------------------+--------------+
+|      1 | Amit Sharma   | HR         | 45000.00 |      103 | Recruitment Service | Rahul        |
+|      3 | Rahul Mehta   | IT         | 70000.00 |      104 | Software License    | Neha         |
+|      3 | Rahul Mehta   | IT         | 70000.00 |      101 | Laptop Order        | Neha         |
+|      5 | Karan Patel   | IT         | 72000.00 |      104 | Software License    | Neha         |
+|      5 | Karan Patel   | IT         | 72000.00 |      101 | Laptop Order        | Neha         |
+|      6 | Sneha Iyer    | HR         | 48000.00 |      103 | Recruitment Service | Rahul        |
+|      9 | Vikram Joshi  | IT         | 75000.00 |      104 | Software License    | Neha         |
+|      9 | Vikram Joshi  | IT         | 75000.00 |      101 | Laptop Order        | Neha         |
+|     10 | Anjali Gupta  | HR         | 47000.00 |      103 | Recruitment Service | Rahul        |
++--------+---------------+------------+----------+----------+---------------------+--------------+
+9 rows in set (0.01 sec)
+
+mysql>
